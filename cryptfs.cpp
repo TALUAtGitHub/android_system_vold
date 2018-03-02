@@ -1781,6 +1781,11 @@ static int wait_and_unmount(const char* mountpoint, bool kill) {
             } else if (i == (WAIT_UNMOUNT_COUNT - 20)) {
                 SLOGW("sending SIGKILL to processes with open files\n");
                 android::vold::KillProcessesWithOpenFiles(mountpoint, SIGKILL);
+            } else if (i == (WAIT_UNMOUNT_COUNT - 10)) {
+                SLOGW("Error unmounting %s after %d attempts. Lazy unmounting instead\n", mountpoint, i);
+                if (umount2(mountpoint, MNT_DETACH) == 0) {
+                    break;
+                }
             }
         }
 
